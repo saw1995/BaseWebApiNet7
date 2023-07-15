@@ -1,5 +1,5 @@
 ﻿using IsiBoCoreNegocio.Model;
-using IsiBoCoreNegocio.Model.DataBase;
+using IsiBoCoreNegocio.Model.DataBaseModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

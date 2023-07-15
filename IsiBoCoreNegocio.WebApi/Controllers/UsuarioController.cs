@@ -1,4 +1,4 @@
-﻿using IsiBoCoreNegocio.Model.DataBase;
+﻿using IsiBoCoreNegocio.Model.DataBaseModel;
 using IsiBoCoreNegocio.Model;
 using IsiBoCoreNegocio.Repository.UsuarioRepository;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +36,7 @@ namespace IsiBoCoreNegocio.WebApi.Controllers
                 }
 
                 var usuarioEncontrado = busquedaUsuario.data == null ? new UsuarioModel() : busquedaUsuario.data;
-                usuarioEncontrado.Password = "";
+                usuarioEncontrado.Pass = "";
 
                 return Response<UsuarioModel>.Success(usuarioEncontrado);
             }

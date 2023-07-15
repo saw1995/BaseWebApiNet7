@@ -1,6 +1,6 @@
 ﻿using IsiBoCoreNegocio.Logger;
 using IsiBoCoreNegocio.Model;
-using IsiBoCoreNegocio.Model.DataBase;
+using IsiBoCoreNegocio.Model.DataBaseModel;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System;
@@ -22,9 +22,9 @@ namespace IsiBoCoreNegocio.Repository.UsuarioRepository
         {
             return new MySqlConnection(_connectionString.CadenaConexion);
         }
-        public async Task<Response<UsuarioModel>> UsuarioById(int _idUsuario)
+        public async Task<Response<UsuarioModel>> usuarioById(int idUSuario)
         {
-            LogPrint.Info("UsuarioById", $"parametros: {JsonConvert.SerializeObject(_idUsuario)}");
+            LogPrint.Info("usuarioById", $"parametros: {JsonConvert.SerializeObject(idUSuario)}");
 
             var response = new UsuarioModel();
 
@@ -32,47 +32,53 @@ namespace IsiBoCoreNegocio.Repository.UsuarioRepository
             {
                 using (var conn = _connection())
                 {
-                    string query = "SELECT Id, Ci, Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, Correo, Celular, Foto, Password, Estado FROM Usuario where Id = @Id";
+                    string query = "SELECT id, idCanal, idDepartamento, ci, nombre, apellidoPaterno, apellidoMaterno, "
+                        + "direccion, correo, celular, foto, pass, fechaCreacion, fechaActualizacion, estado "
+                        + "FROM usuario WHERE id = @id";
 
                     await conn.OpenAsync();
 
                     using (var cmd = new MySqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Id", _idUsuario);
+                        cmd.Parameters.AddWithValue("@id", idUSuario);
 
-                        using (var reader = await cmd.ExecuteReaderAsync())
+                        using (var drd = await cmd.ExecuteReaderAsync())
                         {
-                            while (await reader.ReadAsync())
+                            while (await drd.ReadAsync())
                             {
-                                response.Id = Convert.ToInt32(reader["Id"]);
-                                response.Ci = Convert.ToString(reader["Ci"]) ?? "";
-                                response.Nombre = Convert.ToString(reader["Nombre"]) ?? "";
-                                response.ApellidoPaterno = Convert.ToString(reader["ApellidoPaterno"]) ?? "";
-                                response.ApellidoMaterno = Convert.ToString(reader["ApellidoMaterno"]) ?? "";
-                                response.Direccion = Convert.ToString(reader["Direccion"]) ?? "";
-                                response.Correo = Convert.ToString(reader["Correo"]) ?? "";
-                                response.Celular = Convert.ToString(reader["Celular"]) ?? "";
-                                response.Foto = Convert.ToString(reader["Foto"]) ?? "";
-                                response.Password = Convert.ToString(reader["Password"]) ?? "";
-                                response.Estado = Convert.ToBoolean(reader["Estado"]);
+                                response.Id = Convert.ToInt32(drd["id"]);
+                                response.IdCanal = Convert.ToInt32(drd["idCanal"]);
+                                response.IdDepartamento = Convert.ToInt32(drd["idDepartamento"]);
+                                response.Ci = Convert.ToString(drd["ci"]) ?? "";
+                                response.Nombre = Convert.ToString(drd["nombre"]) ?? "";
+                                response.ApellidoPaterno = Convert.ToString(drd["apellidoPaterno"]) ?? "";
+                                response.ApellidoMaterno = Convert.ToString(drd["apellidoMaterno"]) ?? "";
+                                response.Direccion = Convert.ToString(drd["direccion"]) ?? "";
+                                response.Correo = Convert.ToString(drd["correo"]) ?? "";
+                                response.Celular = Convert.ToString(drd["celular"]) ?? "";
+                                response.Foto = Convert.ToString(drd["foto"]) ?? "";
+                                response.Pass = Convert.ToString(drd["pass"]) ?? "";
+                                response.FechaCreacion = Convert.ToString(drd["fechaCreacion"]) == "" ? new DateTime(); Convert.ToDateTime(drd["fechaCreacion"]);
+                                response.FechaActualizacion = Convert.ToString(drd["fechaActualizacion"]) == "" ? new DateTime(); Convert.ToDateTime(drd["fechaActualizacion"]);
+                                response.Estado = Convert.ToBoolean(drd["estado"]);
                             }
                         }
                     }
                 }
 
-                LogPrint.Info("UsuarioById", $"response: {JsonConvert.SerializeObject(response)}");
+                LogPrint.Info("usuarioById", $"response: {JsonConvert.SerializeObject(response)}");
 
                 if (response.Id == 0)
                 {
-                    LogPrint.Info("AppParkZone.Data.UsuarioData.UsuarioById", $"Usuario no existe no encontrado");
-                    return Response<UsuarioModel>.UnhandledError($"Usuario no encontrado IdUsuario: {_idUsuario}");
+                    LogPrint.Info("usuarioById", $"Usuario no existe no encontrado");
+                    return Response<UsuarioModel>.UnhandledError($"Usuario no encontrado IdUsuario: {idUSuario}");
                 }
 
                 return Response<UsuarioModel>.Success(response);
             }
             catch (Exception ex)
             {
-                LogPrint.Info("AppParkZone.Data.UsuarioData.UsuarioById", $"Error Excepción: {ex.Message}");
+                LogPrint.Info("usuarioById", $"Error Excepción: {ex.Message}");
                 return Response<UsuarioModel>.Error(StatusCode.ExcepcionError, $"Error Excepción: {ex.Message}");
             }
         }
